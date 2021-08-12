@@ -72,7 +72,7 @@ public class LoadData {
             String setNum = inventoryIdToSetNum.get(data[0]);
             Collection<LegoPart> legoParts = setNumToParts.computeIfAbsent(setNum, s -> new LinkedList<>());
             for (int i = 0; i < Integer.parseInt(data[3]); i++) {
-                legoParts.add(new LegoPart(data[0], data[1], !data[4].equals("f")));
+                legoParts.add(new LegoPart(data[1], data[2], !data[4].equals("f")));
             }
 
         }
