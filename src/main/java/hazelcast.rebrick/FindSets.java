@@ -12,10 +12,7 @@ import com.hazelcast.map.IMap;
 import com.hazelcast.sql.SqlResult;
 import com.hazelcast.sql.SqlRow;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class FindSets {
 
@@ -24,9 +21,11 @@ public class FindSets {
         HazelcastInstance client = HazelcastClient.newHazelcastClient();
         client.getMap("resultMap").destroy();
 
+        long startTime = System.currentTimeMillis();
         run(client, Arrays.asList("31046-1", "76069-1", "10243-1"));
+        System.out.println("Current run took " + (System.currentTimeMillis() - startTime) + " msecs");
 
-
+        client.shutdown();
     }
 
     public static void run(HazelcastInstance client, Collection<String> setNumbers) {
@@ -40,18 +39,13 @@ public class FindSets {
             allParts.addAll(set.getParts());
         }
 
-        System.out.println("PARTS WE HAVE");
-        for (LegoPart allPart : allParts) {
-            System.out.println(allPart);
-        }
-
         Pipeline pipeline = Pipeline.create();
         pipeline.readFrom(Sources.map("sets")).map(new FunctionEx<Map.Entry<Object, Object>, Object>() {
             @Override
             public Object applyEx(Map.Entry<Object, Object> entry) throws Exception {
                 String key = (String) entry.getKey();
                 LegoSet value = (LegoSet) entry.getValue();
-                Collection<LegoPart> parts = value.getParts();
+                Collection<LegoPart> parts = new ArrayList<>(value.getParts());
                 System.out.println(value);
                 int neededSize = parts.size();
                 for (LegoPart partWeHave : allParts) {
@@ -59,7 +53,6 @@ public class FindSets {
                 }
                 int matchingSize = neededSize - parts.size();
                 float percentage = (float) ((float) matchingSize * 100.0 / (float) neededSize);
-                System.out.println(matchingSize + " " + neededSize + " " + percentage + " " + value);
                 entry.setValue(new ResultLegoSet(value, percentage));
                 return entry;
 
