@@ -21,9 +21,16 @@ public class FindSets {
         HazelcastInstance client = HazelcastClient.newHazelcastClient();
         client.getMap("resultMap").destroy();
 
+        int numIterations = 2;
+        for (int i = 0; i < numIterations; i++) {
+            run(client, Arrays.asList("31046-1", "76069-1", "10243-1"));
+        }
+
         long startTime = System.currentTimeMillis();
-        run(client, Arrays.asList("31046-1", "76069-1", "10243-1"));
-        System.out.println("Current run took " + (System.currentTimeMillis() - startTime) + " msecs");
+        for (int i = 0; i < numIterations; i++) {
+            run(client, Arrays.asList("31046-1", "76069-1", "10243-1"));
+        }
+        System.out.println("Took " + (System.currentTimeMillis() - startTime)/numIterations + " msecs on average");
 
         client.shutdown();
     }
@@ -33,7 +40,8 @@ public class FindSets {
 
         IMap<String, LegoSet> sets = client.getMap("sets");
         System.out.println("> 1 " + sets.size());
-        LinkedList<LegoPart> allParts = new LinkedList<>();
+        HashSet<LegoPart> allParts = new HashSet<>();
+
         for (String setNumber : setNumbers) {
             LegoSet set = sets.get(setNumber);
             allParts.addAll(set.getParts());
@@ -45,21 +53,17 @@ public class FindSets {
             public Object applyEx(Map.Entry<Object, Object> entry) throws Exception {
                 String key = (String) entry.getKey();
                 LegoSet value = (LegoSet) entry.getValue();
-                Collection<LegoPart> parts = new ArrayList<>(value.getParts());
-                System.out.println(value);
+                HashSet<LegoPart> parts = new HashSet<>(value.getParts());
+
                 int neededSize = parts.size();
-                for (LegoPart partWeHave : allParts) {
-                    parts.remove(partWeHave);
-                }
+                parts.removeAll(allParts);
                 int matchingSize = neededSize - parts.size();
                 float percentage = (float) ((float) matchingSize * 100.0 / (float) neededSize);
-                entry.setValue(new ResultLegoSet(value, percentage));
-                return entry;
-
+                return new AbstractMap.SimpleImmutableEntry<>(entry.getKey(), new ResultLegoSet(value, percentage));
             }
         }).writeTo((Sink) Sinks.map("resultMap"));
 
-        jetService.newJob(pipeline).join();
+        jetService.newLightJob(pipeline).join();
 
         IMap<Object, Object> resultMap = client.getMap("resultMap");
         System.out.println("Result map size " + resultMap.size());

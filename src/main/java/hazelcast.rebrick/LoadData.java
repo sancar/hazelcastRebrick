@@ -8,11 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class LoadData {
 
@@ -21,13 +17,13 @@ public class LoadData {
     public static void main(String[] args) throws IOException {
         Map<String, String> inventoryIdToSetNum = loadInventories();
         Map<String, LegoSet> setNumToSet = loadLegoSets();
-        Map<String, Collection<LegoPart>> setNumToParts = loadParts(inventoryIdToSetNum);
+        Map<String, HashSet<LegoPart>> setNumToParts = loadParts(inventoryIdToSetNum);
 
         HazelcastInstance client = HazelcastClient.newHazelcastClient();
 
         IMap<String, LegoSet> map = client.getMap("sets");
 
-        for (Map.Entry<String, Collection<LegoPart>> entry : setNumToParts.entrySet()) {
+        for (Map.Entry<String, HashSet<LegoPart>> entry : setNumToParts.entrySet()) {
             LegoSet legoSet = setNumToSet.get(entry.getKey());
             legoSet.setParts(entry.getValue());
             map.put(entry.getKey(), legoSet);
@@ -60,8 +56,8 @@ public class LoadData {
         System.out.println(falseP + " " + setNumToParts.size());
     }
 
-    private static Map<String, Collection<LegoPart>> loadParts(Map<String, String> inventoryIdToSetNum) throws IOException {
-        HashMap<String, Collection<LegoPart>> setNumToParts = new HashMap<>();
+    private static Map<String, HashSet<LegoPart>> loadParts(Map<String, String> inventoryIdToSetNum) throws IOException {
+        HashMap<String, HashSet<LegoPart>> setNumToParts = new HashMap<>();
         InputStream resourceAsStream = LoadData.class.getResourceAsStream("/inventory_parts.csv");
         BufferedReader inputStream = new BufferedReader(new InputStreamReader(resourceAsStream));
 
@@ -70,7 +66,7 @@ public class LoadData {
         while ((row = inputStream.readLine()) != null) {
             String[] data = row.split(",");
             String setNum = inventoryIdToSetNum.get(data[0]);
-            Collection<LegoPart> legoParts = setNumToParts.computeIfAbsent(setNum, s -> new LinkedList<>());
+            HashSet<LegoPart> legoParts = setNumToParts.computeIfAbsent(setNum, s -> new HashSet<>());
             for (int i = 0; i < Integer.parseInt(data[3]); i++) {
                 legoParts.add(new LegoPart(data[1], data[2], !data[4].equals("f")));
             }

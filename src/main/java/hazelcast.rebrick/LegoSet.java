@@ -3,15 +3,16 @@ package hazelcast.rebrick;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.HashSet;
 
 public class LegoSet implements Serializable {
 
     private String set_num;
     private String name;
     private int num_parts;
-    private Collection<LegoPart> parts;
+    private HashSet<LegoPart> parts;
 
-    public LegoSet(String set_num, String name, int num_parts, Collection<LegoPart> parts) {
+    public LegoSet(String set_num, String name, int num_parts, HashSet<LegoPart> parts) {
         this.set_num = set_num;
         this.name = name;
         this.num_parts = num_parts;
@@ -30,11 +31,11 @@ public class LegoSet implements Serializable {
         return num_parts;
     }
 
-    public Collection<LegoPart> getParts() {
+    public HashSet<LegoPart> getParts() {
         return parts;
     }
 
-    public void setParts(Collection<LegoPart> parts) {
+    public void setParts(HashSet<LegoPart> parts) {
         this.parts = parts;
     }
 

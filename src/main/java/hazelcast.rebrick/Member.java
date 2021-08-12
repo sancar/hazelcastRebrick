@@ -13,6 +13,7 @@ public class Member {
         config.getJetConfig().setEnabled(true);
         IndexConfig indexConfig = new IndexConfig(IndexType.SORTED, "percentage");
         config.addMapConfig(new MapConfig("resultMap").addIndexConfig(indexConfig));
+        config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true).addMember("127.0.0.1");
         Hazelcast.newHazelcastInstance(config);
     }
 }

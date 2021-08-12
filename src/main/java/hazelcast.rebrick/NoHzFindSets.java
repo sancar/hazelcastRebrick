@@ -44,12 +44,7 @@ public class NoHzFindSets {
             allParts.addAll(set.getParts());
         }
 
-        TreeSet<ResultLegoSet> result = new TreeSet<>(new Comparator<ResultLegoSet>() {
-            @Override
-            public int compare(ResultLegoSet o1, ResultLegoSet o2) {
-                return (int) (o1.getPercentage() - o2.getPercentage());
-            }
-        });
+        HashSet<ResultLegoSet> result = new HashSet<>();
 
         for (Map.Entry<String, LegoSet> entry : sets.entrySet()) {
             String key = (String) entry.getKey();
@@ -77,11 +72,11 @@ public class NoHzFindSets {
     static Map<String, LegoSet> loadData() throws IOException {
         Map<String, String> inventoryIdToSetNum = loadInventories();
         Map<String, LegoSet> setNumToSet = loadLegoSets();
-        Map<String, Collection<LegoPart>> setNumToParts = loadParts(inventoryIdToSetNum);
+        Map<String, HashSet<LegoPart>> setNumToParts = loadParts(inventoryIdToSetNum);
 
         Map<String, LegoSet> map = new HashMap<String, LegoSet>();
 
-        for (Map.Entry<String, Collection<LegoPart>> entry : setNumToParts.entrySet()) {
+        for (Map.Entry<String, HashSet<LegoPart>> entry : setNumToParts.entrySet()) {
             LegoSet legoSet = setNumToSet.get(entry.getKey());
             legoSet.setParts(entry.getValue());
             map.put(entry.getKey(), legoSet);
@@ -114,8 +109,8 @@ public class NoHzFindSets {
         System.out.println(falseP + " " + setNumToParts.size());
     }
 
-    private static Map<String, Collection<LegoPart>> loadParts(Map<String, String> inventoryIdToSetNum) throws IOException {
-        HashMap<String, Collection<LegoPart>> setNumToParts = new HashMap<>();
+    private static Map<String, HashSet<LegoPart>> loadParts(Map<String, String> inventoryIdToSetNum) throws IOException {
+        HashMap<String, HashSet<LegoPart>> setNumToParts = new HashMap<>();
         InputStream resourceAsStream = LoadData.class.getResourceAsStream("/inventory_parts.csv");
         BufferedReader inputStream = new BufferedReader(new InputStreamReader(resourceAsStream));
 
@@ -124,7 +119,7 @@ public class NoHzFindSets {
         while ((row = inputStream.readLine()) != null) {
             String[] data = row.split(",");
             String setNum = inventoryIdToSetNum.get(data[0]);
-            Collection<LegoPart> legoParts = setNumToParts.computeIfAbsent(setNum, s -> new LinkedList<>());
+            Collection<LegoPart> legoParts = setNumToParts.computeIfAbsent(setNum, s -> new HashSet<>());
             for (int i = 0; i < Integer.parseInt(data[3]); i++) {
                 legoParts.add(new LegoPart(data[1], data[2], !data[4].equals("f")));
             }
