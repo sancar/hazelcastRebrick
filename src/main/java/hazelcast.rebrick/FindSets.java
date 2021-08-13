@@ -39,7 +39,7 @@ public class FindSets {
         JetService jetService = client.getJet();
 
         IMap<String, LegoSet> sets = client.getMap("sets");
-        System.out.println("> 1 " + sets.size());
+        System.out.println("There are a total of " + sets.size() + " Lego set definitions in the database.");
         HashSet<LegoPart> allParts = new HashSet<>();
 
         for (String setNumber : setNumbers) {
@@ -69,8 +69,10 @@ public class FindSets {
         System.out.println("Result map size " + resultMap.size());
         SqlResult sqlRows = client.getSql().execute("SELECT * FROM resultMap ORDER BY percentage DESC LIMIT 50");
 
+        System.out.println("Percentage      Lego Set");
+        System.out.println("----------      ---------");
         for (SqlRow sqlRow : sqlRows) {
-            System.out.println(sqlRow.getObject("legoSet") + " " + sqlRow.getObject("percentage"));
+            System.out.println(sqlRow.getObject("percentage") + "           " + sqlRow.getObject("legoSet"));
         }
     }
 }

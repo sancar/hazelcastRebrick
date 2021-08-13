@@ -29,7 +29,7 @@ public class LoadData {
             map.put(entry.getKey(), legoSet);
         }
 
-        System.out.println(map.size());
+        System.out.println("There are a total of " + map.size() + " Lego set definitions in the database.");
         client.shutdown();
     }
 

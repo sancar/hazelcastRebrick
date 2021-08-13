@@ -5,6 +5,9 @@ import com.hazelcast.config.IndexConfig;
 import com.hazelcast.config.IndexType;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+
+import java.io.File;
 
 public class Member {
 
@@ -14,6 +17,10 @@ public class Member {
         IndexConfig indexConfig = new IndexConfig(IndexType.SORTED, "percentage");
         config.addMapConfig(new MapConfig("resultMap").addIndexConfig(indexConfig));
         config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true).addMember("127.0.0.1");
-        Hazelcast.newHazelcastInstance(config);
+        // enable persistence
+        //config.getPersistenceConfig().setEnabled(true).setBaseDir(new File("persistent_data")).;
+        config.getHotRestartPersistenceConfig().setEnabled(true);
+        config.getMapConfig("sets").getHotRestartConfig().setEnabled(true);
+        HazelcastInstance server = Hazelcast.newHazelcastInstance(config);
     }
 }
