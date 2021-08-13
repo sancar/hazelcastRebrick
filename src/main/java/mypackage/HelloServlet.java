@@ -13,6 +13,7 @@ import com.hazelcast.sql.SqlRow;
 import hazelcast.rebrick.LegoPart;
 import hazelcast.rebrick.LegoSet;
 import hazelcast.rebrick.MyFunction;
+import hazelcast.rebrick.ResultLegoSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -66,17 +67,27 @@ public class HelloServlet extends HttpServlet {
         pipeline.readFrom(Sources.map("sets")).
                 map(new MyFunction(allParts)).
                 writeTo((Sink) Sinks.map("resultMap"));
+
         jetService.newLightJob(pipeline).join();
 
         SqlResult sqlRows = client.getSql().execute("SELECT * FROM resultMap ORDER BY percentage DESC LIMIT 50");
 
         header(response);
 
-        response.getWriter().println("<ul>");
+        response.getWriter().println("<table style=“width:100%“>\n" +
+                "  <tr>\n" +
+                "    <th>Percentage</th>\n" +
+                "    <th>Lego Name</th>\n" +
+                "    <th>Number of Parts</th>\n" +
+                "  </tr>");
+
         for (SqlRow sqlRow : sqlRows) {
-            response.getWriter().println("<li>" + sqlRow.getObject("legoSet") + " " + sqlRow.getObject("percentage") + "</li>");
+            LegoSet legoSet = sqlRow.getObject("legoSet");
+            response.getWriter().println("<tr><th>" + sqlRow.getObject("percentage") + "%</th>" +
+                    "<th>" + legoSet.getName() + "</th>" +
+                    "<th>" + legoSet.getNum_parts() + "</th></tr>");
         }
-        response.getWriter().println("</ul>");
+        response.getWriter().println("</table>");
 
         end(response);
     }

@@ -52,11 +52,6 @@
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-enterprise-hotrestart</artifactId>
-            <version>5.0-BETA-2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-sql</artifactId>
             <version>5.0-BETA-2</version>
         </dependency>

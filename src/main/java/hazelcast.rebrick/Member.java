@@ -13,6 +13,7 @@ public class Member {
 
     public static void main(String[] args) {
         Config config = new Config();
+        config.setLicenseKey("PLATFORM#99Nodes#S9DOJKjdfMqYBHZ1Q5NEwnlmTPCAb68Wg0iUku2GyX19911011099001901911001919100001092900111113");
         config.getJetConfig().setEnabled(true);
         IndexConfig indexConfig = new IndexConfig(IndexType.SORTED, "percentage");
         config.addMapConfig(new MapConfig("resultMap").addIndexConfig(indexConfig));
